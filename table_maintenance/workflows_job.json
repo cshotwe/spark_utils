@@ -1,0 +1,64 @@
+{
+    "name": "Maintenance job",
+    "email_notifications": {
+      "no_alert_for_skipped_runs": false
+    },
+    "webhook_notifications": {},
+    "timeout_seconds": 0,
+    "max_concurrent_runs": 1,
+    "tasks": [
+      {
+        "task_key": "maintenance_task_for_all_tables",
+        "run_if": "ALL_SUCCESS",
+        "spark_python_task": {
+          "python_file": "/Workspace/Users/../maintenance/src/maintenance_job.py",
+          "parameters": [
+            "-t",
+            "{{job.parameters.tables}}",
+            "-rh",
+            "{{job.parameters.retention_hours}}",
+            "--optimize_where",
+            "{{job.parameters.optimize_where}}",
+            "--delete_where",
+            "{{job.parameters.delete_where}}"
+          ]
+        },
+        "timeout_seconds": 0,
+        "email_notifications": {},
+        "webhook_notifications": {},
+        "environment_key": "Default"
+      }
+    ],
+    "queue": {
+      "enabled": true
+    },
+    "parameters": [
+      {
+        "name": "delete_where",
+        "default": "event_date_ts <= CURRENT_DATE() - INTERVAL 29 DAY"
+      },
+      {
+        "name": "optimize_where",
+        "default": ""
+      },
+      {
+        "name": "retention_hours",
+        "default": "720"
+      },
+      {
+        "name": "tables",
+        "default": "cshotwell.test.bronze_raw,cshotwell.test.silver_cdf,cshotwell.test.gold_agg"
+      }
+    ],
+    "environments": [
+      {
+        "environment_key": "Default",
+        "spec": {
+          "client": "1"
+        }
+      }
+    ],
+    "run_as": {
+      "user_name": "test_user@gmail.com"
+    }
+  }
